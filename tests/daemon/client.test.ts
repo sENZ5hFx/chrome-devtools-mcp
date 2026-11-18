@@ -120,7 +120,6 @@ describe('daemon client', () => {
       assert.ok(!logText.includes(secret));
     });
 
-
     it('should start and stop daemon', async () => {
       assert.ok(
         !isDaemonRunning(sessionId),

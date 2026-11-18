@@ -252,11 +252,13 @@ export async function stopDaemon(sessionId: string): Promise<void> {
       try {
         process.kill(pid, 'SIGKILL');
       } catch (killError) {
-        if (!(
-          killError instanceof Error &&
-          'code' in killError &&
-          killError.code === 'ESRCH'
-        )) {
+        if (
+          !(
+            killError instanceof Error &&
+            'code' in killError &&
+            killError.code === 'ESRCH'
+          )
+        ) {
           throw new Error(
             `Failed to stop daemon (pid ${pid}): ${getErrorMessage(killError)}`,
             {cause: killError},
