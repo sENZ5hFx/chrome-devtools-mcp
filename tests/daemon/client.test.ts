@@ -129,9 +129,9 @@ describe('daemon client', () => {
 
       const response = await sendCommand(command, sessionId);
       assert.strictEqual(response.success, false);
-      const errorText = String(response.error);
-      assert.match(errorText, /Unknown daemon method "reload"/);
-      assert.ok(!errorText.includes(secret));
+      assert.ok(typeof response.error === 'string');
+      assert.match(response.error, /Unknown daemon method "reload"/);
+      assert.ok(!response.error.includes(secret));
     });
 
     it('should start and stop daemon', async () => {
