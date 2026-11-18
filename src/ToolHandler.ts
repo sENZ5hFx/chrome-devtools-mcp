@@ -563,7 +563,7 @@ export class ToolHandler {
       if (response.error) {
         result.isError = true;
       }
-      success = true;
+      success = !response.error;
       if (this.#config.resolved.experimentalStructuredContent) {
         result.structuredContent = structuredContent as Record<string, unknown>;
       }
