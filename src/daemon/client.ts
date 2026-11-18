@@ -200,7 +200,7 @@ export async function sendCommand(
     const transport = new PipeTransport(socket, socket, puppeteerLogger);
     transport.onmessage = async (message: string) => {
       clearTimeout(timer);
-      logger?.('onmessage', message);
+      logger?.('Daemon response received');
       socket.end();
       resolve(JSON.parse(message));
     };
@@ -214,7 +214,7 @@ export async function sendCommand(
       logger?.('Socket closed:');
       reject(new Error('Socket closed'));
     });
-    logger?.('Sending message', command);
+    logger?.('Sending daemon command:', command.method);
     transport.send(JSON.stringify(command));
   });
 }
