@@ -11,13 +11,11 @@ export function getErrorMessage(err: unknown): string {
   if (err instanceof Error) {
     return err.message;
   }
-  if (
-    err !== null &&
-    typeof err === 'object' &&
-    'message' in err &&
-    typeof err.message === 'string'
-  ) {
-    return err.message;
+  if (err !== null && typeof err === 'object' && 'message' in err) {
+    const message = err.message;
+    if (typeof message === 'string') {
+      return message;
+    }
   }
   return String(err);
 }
