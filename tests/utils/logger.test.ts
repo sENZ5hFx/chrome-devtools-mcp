@@ -11,6 +11,7 @@ import util from 'node:util';
 
 import {
   escapeForLog,
+  formatArgumentNamesForLogging,
   redactConnectOptionsForLogging,
   redactDaemonArgsForLogging,
   redactUrlForLogging,
@@ -145,6 +146,24 @@ describe('stripTerminalEscapes', () => {
   it('is idempotent on already-stripped output', () => {
     const once = stripTerminalEscapes('\x1b]0;PWned\x07\x1b[31mx\x1b[0m');
     assert.strictEqual(stripTerminalEscapes(once), once);
+  });
+});
+
+describe('formatArgumentNamesForLogging', () => {
+  it('never includes provided argument values', () => {
+    const result = formatArgumentNamesForLogging({
+      text: 'PASSWORD_SECRET',
+      url: 'https://user:password@example.test/?token=SECRET',
+      nested: {token: 'SECRET'},
+    });
+    assert.strictEqual(result, 'nested, text, url');
+    assert.ok(!result.includes('PASSWORD_SECRET'));
+    assert.ok(!result.includes('token=SECRET'));
+    assert.ok(!result.includes('password'));
+  });
+
+  it('labels an invocation without arguments', () => {
+    assert.strictEqual(formatArgumentNamesForLogging({}), '(none)');
   });
 });
 
