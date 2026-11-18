@@ -8,11 +8,22 @@ import process from 'node:process';
 import {logger} from './logger.js';
 
 export function getErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
+  if (err instanceof Error) {
+    return err.message;
+  }
+  if (
+    err !== null &&
+    typeof err === 'object' &&
+    'message' in err &&
+    typeof err.message === 'string'
+  ) {
+    return err.message;
+  }
+  return String(err);
 }
 
 export function toError(err: unknown): Error {
-  return err instanceof Error ? err : new Error(String(err));
+  return err instanceof Error ? err : new Error(getErrorMessage(err));
 }
 
 export function setupUnhandledRejectionHandler(onCrash: () => void): void {
