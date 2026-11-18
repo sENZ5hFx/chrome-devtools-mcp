@@ -120,6 +120,19 @@ describe('daemon client', () => {
       assert.ok(!logText.includes(secret));
     });
 
+    it('rejects unknown methods without echoing payloads', async () => {
+      const secret = 'UNKNOWN_METHOD_SECRET_SENTINEL';
+      const command: {method: 'status'} = {method: 'status'};
+      Reflect.set(command, 'method', 'reload');
+      Reflect.set(command, 'args', {token: secret});
+      await startDaemon([], sessionId);
+
+      const response = await sendCommand(command, sessionId);
+      assert.strictEqual(response.success, false);
+      assert.match(response.error ?? '', /Unknown daemon method "reload"/);
+      assert.ok(!response.error?.includes(secret));
+    });
+
     it('should start and stop daemon', async () => {
       assert.ok(
         !isDaemonRunning(sessionId),

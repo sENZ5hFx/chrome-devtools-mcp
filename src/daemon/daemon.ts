@@ -207,9 +207,17 @@ async function handleRequest(msg: DaemonMessage): Promise<{
       };
     }
     {
+      const unknownMethod: unknown = Reflect.get(msg, 'method');
+      const safeMethod =
+        typeof unknownMethod === 'string' &&
+        /^[a-zA-Z_][a-zA-Z0-9_]{0,31}$/.test(unknownMethod)
+          ? unknownMethod
+          : '[invalid]';
       return {
         success: false,
-        error: 'Unknown daemon method. Expected invoke_tool, status, or stop.',
+        error:
+          `Unknown daemon method ${JSON.stringify(safeMethod)}. ` +
+          'Expected invoke_tool, status, or stop.',
       };
     }
   } catch (error: unknown) {
