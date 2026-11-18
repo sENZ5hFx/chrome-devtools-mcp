@@ -207,7 +207,7 @@ async function handleRequest(msg: DaemonMessage): Promise<{
       };
     }
     {
-      const unknownMethod: unknown = Reflect.get(msg, 'method');
+      const unknownMethod: unknown = Reflect.get(Object(msg), 'method');
       const safeMethod =
         typeof unknownMethod === 'string' &&
         /^[a-zA-Z_][a-zA-Z0-9_]{0,31}$/.test(unknownMethod)
