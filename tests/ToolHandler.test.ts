@@ -113,6 +113,45 @@ describe('ToolHandler', () => {
     assert.strictEqual(handlerCalled, true);
   });
 
+  it('reports handled tool failures as unsuccessful telemetry', async () => {
+    const config = parseConfig();
+    const telemetry = sinon.createStubInstance(ClearcutLogger);
+    sinon.stub(ClearcutLogger, 'get').returns(telemetry);
+    sinon.stub(Date, 'now').returns(1_000);
+    const tool = defineBrowserlessTool(() => ({
+      name: 'failed_browserless_tool',
+      description: 'Always fails for this regression test',
+      annotations: {
+        category: ToolCategory.NAVIGATION,
+        readOnlyHint: true,
+      },
+      schema: {},
+      blockedByDialog: false,
+      verifyFilesSchema: {},
+      handler: async () => {
+        throw new Error('Tool handler failed');
+      },
+    }))(config.resolved);
+    const handler = new ToolHandler(
+      tool,
+      config,
+      async () => createMockMcpContext(),
+      sinon.spy(),
+    );
+
+    const result = await handler.handle({});
+    assert.strictEqual(result.isError, true);
+    sinon.assert.calledOnceWithExactly(telemetry.logToolInvocation, {
+      toolName: 'failed_browserless_tool',
+      params: {},
+      schema: {},
+      success: false,
+      latencyMs: 0,
+      devToolsData: undefined,
+      pageUrl: undefined,
+    });
+  });
+
   describe('cancellation', () => {
     const modes: Array<ToolConcurrency | 'browserless'> = [
       'exclusive',
