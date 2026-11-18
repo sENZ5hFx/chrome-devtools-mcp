@@ -11,6 +11,7 @@ import {afterEach, beforeEach, describe, it, mock} from 'node:test';
 import {
   getErrorMessage,
   setupUnhandledRejectionHandler,
+  toError,
 } from '../../src/utils/errorHandling.js';
 
 describe('getErrorMessage', () => {
@@ -20,6 +21,24 @@ describe('getErrorMessage', () => {
 
   it('converts non-Error values to strings', () => {
     assert.strictEqual(getErrorMessage('string error'), 'string error');
+  });
+});
+
+describe('toError and object messages', () => {
+  it('preserves messages from thrown objects', () => {
+    assert.strictEqual(
+      getErrorMessage({message: 'Browser connection rejected'}),
+      'Browser connection rejected',
+    );
+    const error = toError({message: 'Selector no longer exists'});
+    assert.strictEqual(error.message, 'Selector no longer exists');
+  });
+
+  it('preserves existing Error objects and fallback conversion', () => {
+    const error = new Error('already an error');
+    assert.strictEqual(toError(error), error);
+    assert.strictEqual(getErrorMessage(null), 'null');
+    assert.strictEqual(getErrorMessage({message: 12}), '[object Object]');
   });
 });
 
