@@ -7,9 +7,15 @@
 import assert from 'node:assert';
 import childProcess, {spawn} from 'node:child_process';
 import crypto from 'node:crypto';
-import fs, {existsSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
+import fs, {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import net from 'node:net';
-import {dirname} from 'node:path';
+import {dirname, join} from 'node:path';
 import {describe, it, afterEach, beforeEach} from 'node:test';
 
 import sinon from 'sinon';
@@ -96,6 +102,25 @@ describe('daemon client', () => {
   });
 
   describe('start/stop', () => {
+    it('does not log sensitive daemon command payloads', async () => {
+      using dir = createTempDir('cdm-secret-logging-');
+      const logFile = join(dir.path, 'daemon.log');
+      const secret = 'UNIQUE_DAEMON_LOG_TEST_SECRET';
+      await startDaemon(['--logFile', logFile], sessionId);
+      await sendCommand(
+        {
+          method: 'invoke_tool',
+          tool: 'unknown_tool_for_log_test',
+          args: {value: secret},
+        },
+        sessionId,
+      );
+      await stopDaemon(sessionId);
+      const logText = readFileSync(logFile, 'utf8');
+      assert.ok(!logText.includes(secret));
+    });
+
+
     it('should start and stop daemon', async () => {
       assert.ok(
         !isDaemonRunning(sessionId),
