@@ -531,9 +531,8 @@ export class ToolHandler {
     let devToolsData: DevToolsData | undefined;
     let pageUrl: string | undefined;
     try {
-      logger?.(
-        `${tool.name} request arguments: ${formatArgumentNamesForLogging(params)}`,
-      );
+      const argumentNames = formatArgumentNamesForLogging(params);
+      logger?.(`${tool.name} request arguments: ${argumentNames}`);
       const response = isSlimTool(tool)
         ? new SlimMcpResponse(this.#config)
         : new McpResponse(this.#config);
