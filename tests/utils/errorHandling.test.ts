@@ -25,6 +25,18 @@ describe('getErrorMessage', () => {
 });
 
 describe('toError and object messages', () => {
+  it('reads a message accessor once', () => {
+    let reads = 0;
+    const thrown = {
+      get message() {
+        reads += 1;
+        return reads === 1 ? 'first message' : 12;
+      },
+    };
+    assert.strictEqual(getErrorMessage(thrown), 'first message');
+    assert.strictEqual(reads, 1);
+  });
+
   it('preserves messages from thrown objects', () => {
     assert.strictEqual(
       getErrorMessage({message: 'Browser connection rejected'}),
