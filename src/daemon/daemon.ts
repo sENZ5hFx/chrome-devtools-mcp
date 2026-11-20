@@ -207,9 +207,17 @@ async function handleRequest(msg: DaemonMessage): Promise<{
       };
     }
     {
+      const unknownMethod: unknown = Reflect.get(Object(msg), 'method');
+      const safeMethod =
+        typeof unknownMethod === 'string' &&
+        /^[a-zA-Z_][a-zA-Z0-9_]{0,31}$/.test(unknownMethod)
+          ? unknownMethod
+          : '[invalid]';
       return {
         success: false,
-        error: `Unknown method: ${JSON.stringify(msg, null, 2)}`,
+        error:
+          `Unknown daemon method ${JSON.stringify(safeMethod)}. ` +
+          'Expected invoke_tool, status, or stop.',
       };
     }
   } catch (error: unknown) {
@@ -235,7 +243,7 @@ async function startSocketServer(): Promise<void> {
     server = createServer(socket => {
       const transport = new PipeTransport(socket, socket, puppeteerLogger);
       transport.onmessage = async (message: string) => {
-        logger?.('onmessage', message);
+        logger?.('Daemon request received');
         const response = await handleRequest(JSON.parse(message));
         transport.send(JSON.stringify(response));
         socket.end();
