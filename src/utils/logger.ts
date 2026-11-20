@@ -146,6 +146,14 @@ export function redactDaemonArgsForLogging(args: readonly string[]): string[] {
   });
 }
 
+/** Log static argument names instead of user-provided values. */
+export function formatArgumentNamesForLogging(
+  params: Record<string, unknown>,
+): string {
+  const names = Object.keys(params).sort();
+  return names.length ? names.join(', ') : '(none)';
+}
+
 export const logger: Logger = (...args: unknown[]) => {
   if (logFileStream) {
     logFileStream.write(

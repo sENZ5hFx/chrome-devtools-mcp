@@ -35,7 +35,7 @@ import {
 } from './tools/ToolDefinition.js';
 import {getErrorMessage, toError} from './utils/errorHandling.js';
 import {fileUrlToPathWithPosixFallback} from './utils/files.js';
-import {logger} from './utils/logger.js';
+import {formatArgumentNamesForLogging, logger} from './utils/logger.js';
 import {raceWithSignal} from './utils/raceWithSignal.js';
 import type {TaskQueue} from './utils/TaskRunner.js';
 import {pathToFileURL} from 'node:url';
@@ -531,7 +531,8 @@ export class ToolHandler {
     let devToolsData: DevToolsData | undefined;
     let pageUrl: string | undefined;
     try {
-      logger?.(`${tool.name} request: ${JSON.stringify(params, null, '  ')}`);
+      const argumentNames = formatArgumentNamesForLogging(params);
+      logger?.(`${tool.name} request arguments: ${argumentNames}`);
       const response = isSlimTool(tool)
         ? new SlimMcpResponse(this.#config)
         : new McpResponse(this.#config);
